@@ -1,0 +1,61 @@
+# Ignore OS-generated files
+.DS_Store
+Thumbs.db
+
+# Ignore Python bytecode and other generated files
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.egg-info/
+*.eggs/
+
+# Ignore virtual environment directories
+env/
+venv/
+
+# Ignore package manager files
+node_modules/
+dist/
+build/
+*.log
+
+# Ignore IDE and editor specific files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Ignore compiled code
+*.class
+*.o
+*.so
+
+# Ignore macOS Finder files
+.DS_Store
+
+# Ignore temporary files
+*.swp
+*.tmp
+
+# Ignore environment variable files (dotenv)
+.env
+
+# Ignore log files
+*.log
+
+# Ignore coverage and testing output
+coverage/
+*.cover
+*.coverage
+*.coverage.*
+.cache/
+nosetests.xml
+coverage.xml
+*.coveragerc
+
+# Ignore system specific files (optional)
+.vagrant/
+.vscode/
