@@ -1,47 +1,73 @@
-const Appointment = require("../models/appointment");
-const Doctor = require("../models/doctor");
-const Patient = require("../models/patient");
+const Appointment = require("../models/Appointment");
+const Doctor = require("../models/Doctor");
+const Patient = require("../models/Patient");
 
-const createAppointment = async (req, res) => {
-  const { doctorId, patientId, date, reason } = req.body;
-
+exports.bookAppointment = async (req, res) => {
   try {
-    const doctor = await Doctor.findByPk(doctorId);
-    const patient = await Patient.findByPk(patientId);
+    const { doctorId, patientId, appointmentTime } = req.body;
 
-    if (!doctor || !patient) {
-      return res.status(404).json({ message: "Doctor or Patient not found" });
-    }
+    // Check if doctor exists
+    const doctor = await Doctor.findByPk(doctorId);
+    if (!doctor) return res.status(404).json({ error: "Doctor not found" });
+
+    // Check if patient exists
+    const patient = await Patient.findByPk(patientId);
+    if (!patient) return res.status(404).json({ error: "Patient not found" });
 
     const appointment = await Appointment.create({
       doctorId,
       patientId,
-      date,
-      reason,
+      appointmentTime,
+      status: "pending",
     });
-    return res.status(201).json(appointment);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "An error occurred", error });
+
+    res
+      .status(201)
+      .json({ message: "Appointment booked successfully", appointment });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to book appointment" });
   }
 };
 
-const getAppointments = async (req, res) => {
+exports.getAppointments = async (req, res) => {
   try {
-    const appointments = await Appointment.findAll({
-      include: [
-        { model: Doctor, attributes: ["name", "specialization"] },
-        { model: Patient, attributes: ["name", "age", "phone"] },
-      ],
-    });
-    return res.status(200).json(appointments);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "An error occurred", error });
+    const role = req.user.role;
+
+    let appointments;
+    if (role === "doctor") {
+      appointments = await Appointment.findAll({
+        where: { doctorId: req.user.id },
+      });
+    } else if (role === "patient") {
+      appointments = await Appointment.findAll({
+        where: { patientId: req.user.id },
+      });
+    } else {
+      appointments = await Appointment.findAll();
+    }
+
+    res.status(200).json(appointments);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to retrieve appointments" });
   }
 };
 
-module.exports = {
-  createAppointment,
-  getAppointments,
+exports.updateAppointment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const appointment = await Appointment.findByPk(id);
+    if (!appointment)
+      return res.status(404).json({ error: "Appointment not found" });
+
+    appointment.status = status || appointment.status;
+    await appointment.save();
+
+    res
+      .status(200)
+      .json({ message: "Appointment updated successfully", appointment });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update appointment" });
+  }
 };
