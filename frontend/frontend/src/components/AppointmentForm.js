@@ -10,6 +10,7 @@ const AppointmentForm = () => {
     patientName: "",
     patientEmail: "",
     appointmentTime: "",
+    reason: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -56,11 +57,13 @@ const AppointmentForm = () => {
     setSuccess(null);
 
     try {
+      // Fix: Send reason as a string instead of the entire formData object
       const appointmentData = {
         doctorId: parseInt(formData.doctorId),
         patientName: formData.patientName,
         patientEmail: formData.patientEmail,
         appointmentTime: formData.appointmentTime,
+        reason: formData.reason, // Fix: Send just the reason string
       };
 
       const response = await fetch("http://localhost:8585/appointments/book", {
@@ -83,6 +86,7 @@ const AppointmentForm = () => {
         patientName: "",
         patientEmail: "",
         appointmentTime: "",
+        reason: "", // Reset reason field as well
       });
     } catch (err) {
       console.error("Error:", err);
@@ -168,6 +172,18 @@ const AppointmentForm = () => {
               </option>
             ))}
           </select>
+        </div>
+
+        <div>
+          <label>Reason of visit:</label>
+          <input
+            type="text"
+            value={formData.reason}
+            onChange={(e) =>
+              setFormData({ ...formData, reason: e.target.value })
+            }
+            required
+          />
         </div>
 
         <button type="submit" disabled={loading}>

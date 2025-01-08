@@ -27,11 +27,18 @@ const Appointment = sequelize.define(
       allowNull: false,
     },
     appointmentTime: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(50), // Explicitly set as STRING with length
       allowNull: false,
+    },
+    reason: {
+      type: DataTypes.STRING, // Explicitly set as STRING with length
+      allowNull: true,
     },
   },
   { timestamps: true }
 );
+
+// Force the table to be recreated with the new schema
+sequelize.sync({ force: true });
 
 module.exports = Appointment;

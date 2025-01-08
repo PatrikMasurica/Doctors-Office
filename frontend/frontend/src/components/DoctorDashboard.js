@@ -28,6 +28,10 @@ const AppointmentModal = ({ appointment, onClose }) => {
               <span className="info-label">Time:</span>
               <span className="info-value">{appointment.appointmentTime}</span>
             </div>
+            <div className="info-row">
+              <span className="info-label">Reason:</span>
+              <span className="info-value">{appointment.reason}</span>
+            </div>
           </div>
         </div>
       </div>

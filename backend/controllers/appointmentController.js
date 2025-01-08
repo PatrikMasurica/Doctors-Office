@@ -3,12 +3,35 @@ const Doctor = require("../models/Doctor");
 
 exports.bookAppointment = async (req, res) => {
   try {
-    const { doctorId, patientName, patientEmail, appointmentTime } = req.body;
+    const { doctorId, patientName, patientEmail, appointmentTime, reason } =
+      req.body;
+
+    // Validate appointment time format
+    const timeFormat =
+      /^(Monday|Tuesday|Wednesday|Thursday|Friday) ([0-1][0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!timeFormat.test(appointmentTime)) {
+      return res.status(400).json({
+        error: "Invalid appointment time format. Use format: 'Day HH:MM'",
+      });
+    }
 
     // Validate required fields
-    if (!doctorId || !patientName || !patientEmail || !appointmentTime) {
+    if (
+      !doctorId ||
+      !patientName ||
+      !patientEmail ||
+      !appointmentTime ||
+      !reason
+    ) {
       return res.status(400).json({
         error: "Missing required fields",
+        received: {
+          doctorId,
+          patientName,
+          patientEmail,
+          appointmentTime,
+          reason,
+        },
       });
     }
 
@@ -23,12 +46,13 @@ exports.bookAppointment = async (req, res) => {
       return res.status(400).json({ error: "This time slot is not available" });
     }
 
-    // Create appointment
+    // Create appointment with reason
     const appointment = await Appointment.create({
       doctorId: parseInt(doctorId),
       patientName,
       patientEmail,
       appointmentTime,
+      reason,
     });
 
     // Update doctor's available slots
@@ -64,6 +88,7 @@ exports.deleteAppointment = async (req, res) => {
       return res.status(404).json({ error: "Doctor not found" });
     }
 
+    // Add the slot back to available slots
     doctor.availableSlots.push(appointment.appointmentTime);
     await doctor.save();
 
@@ -82,6 +107,13 @@ exports.getAppointments = async (req, res) => {
     const appointments = await Appointment.findAll({
       where: { doctorId },
       order: [["appointmentTime", "ASC"]],
+      attributes: [
+        "id",
+        "patientName",
+        "patientEmail",
+        "appointmentTime",
+        "reason",
+      ],
     });
 
     res.status(200).json(appointments);
