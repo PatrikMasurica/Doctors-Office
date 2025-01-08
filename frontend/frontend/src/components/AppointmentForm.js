@@ -57,7 +57,6 @@ const AppointmentForm = () => {
     setSuccess(null);
 
     try {
-      // Fix: Send reason as a string instead of the entire formData object
       const appointmentData = {
         doctorId: parseInt(formData.doctorId),
         patientName: formData.patientName,
@@ -86,7 +85,7 @@ const AppointmentForm = () => {
         patientName: "",
         patientEmail: "",
         appointmentTime: "",
-        reason: "", // Reset reason field as well
+        reason: "",
       });
     } catch (err) {
       console.error("Error:", err);

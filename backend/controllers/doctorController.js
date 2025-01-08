@@ -1,12 +1,11 @@
 const Doctor = require("../models/Doctor");
 
-// Fetch all doctors
 exports.getAllDoctors = async (req, res) => {
   try {
     const doctors = await Doctor.findAll({
       attributes: ["id", "name", "specialization", "availableSlots"],
     });
-    res.status(200).json(doctors); // Return all doctors
+    res.status(200).json(doctors);
   } catch (err) {
     console.error("Error fetching doctors:", err.message);
     res.status(500).json({ error: "Failed to retrieve doctors" });
@@ -17,14 +16,12 @@ exports.addDoctor = async (req, res) => {
   try {
     const { name, specialization, availableSlots, email, password } = req.body;
 
-    // Validate required fields
     if (!name || !email || !password) {
       return res
         .status(400)
         .json({ error: "Name, email, and password are required" });
     }
 
-    // Create a new doctor with default availableSlots if not provided
     const doctor = await Doctor.create({
       name,
       email,
@@ -39,7 +36,6 @@ exports.addDoctor = async (req, res) => {
       ],
     });
 
-    // Remove password from response
     const { password: _, ...doctorData } = doctor.toJSON();
     res
       .status(201)
@@ -80,5 +76,22 @@ exports.deleteDoctor = async (req, res) => {
     res.status(200).json({ message: "Doctor deleted successfully" });
   } catch (err) {
     res.status(500).json({ error: "Failed to delete doctor" });
+  }
+};
+
+exports.getDoctorInfo = async (req, res) => {
+  try {
+    const doctor = await Doctor.findByPk(req.user.id, {
+      attributes: ["id", "name", "specialization", "email"],
+    });
+
+    if (!doctor) {
+      return res.status(404).json({ error: "Doctor not found" });
+    }
+
+    res.status(200).json(doctor);
+  } catch (err) {
+    console.error("Error fetching doctor info:", err.message);
+    res.status(500).json({ error: "Failed to retrieve doctor information" });
   }
 };

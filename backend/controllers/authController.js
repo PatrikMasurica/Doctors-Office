@@ -3,26 +3,21 @@ const jwt = require("jsonwebtoken");
 const Doctor = require("../models/Doctor");
 require("dotenv").config();
 
-// Doctor Signup
 exports.signup = async (req, res) => {
   try {
     const { name, email, password, specialization } = req.body;
 
-    // Validate required fields
     if (!name || !email || !password || !specialization) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
-    // Check if the email already exists
     const existingDoctor = await Doctor.findOne({ where: { email } });
     if (existingDoctor) {
       return res.status(400).json({ error: "Email is already registered" });
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Default time slots
     const defaultSlots = [
       "Monday 09:00",
       "Monday 10:00",
@@ -51,7 +46,6 @@ exports.signup = async (req, res) => {
       "Friday 15:00",
     ];
 
-    // Create the doctor with default time slots
     const doctor = await Doctor.create({
       name,
       email,
@@ -67,18 +61,15 @@ exports.signup = async (req, res) => {
   }
 };
 
-// Doctor Login
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find doctor by email
     const doctor = await Doctor.findOne({ where: { email } });
     if (!doctor || !(await bcrypt.compare(password, doctor.password))) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    // Generate a token
     const token = jwt.sign(
       { id: doctor.id, email: doctor.email },
       process.env.JWT_SECRET,

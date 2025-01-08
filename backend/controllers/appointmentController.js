@@ -6,7 +6,6 @@ exports.bookAppointment = async (req, res) => {
     const { doctorId, patientName, patientEmail, appointmentTime, reason } =
       req.body;
 
-    // Validate appointment time format
     const timeFormat =
       /^(Monday|Tuesday|Wednesday|Thursday|Friday) ([0-1][0-9]|2[0-3]):[0-5][0-9]$/;
     if (!timeFormat.test(appointmentTime)) {
@@ -15,7 +14,6 @@ exports.bookAppointment = async (req, res) => {
       });
     }
 
-    // Validate required fields
     if (
       !doctorId ||
       !patientName ||
@@ -35,18 +33,15 @@ exports.bookAppointment = async (req, res) => {
       });
     }
 
-    // Find doctor
     const doctor = await Doctor.findByPk(parseInt(doctorId));
     if (!doctor) {
       return res.status(404).json({ error: "Doctor not found" });
     }
 
-    // Validate if the slot is available
     if (!doctor.availableSlots.includes(appointmentTime)) {
       return res.status(400).json({ error: "This time slot is not available" });
     }
 
-    // Create appointment with reason
     const appointment = await Appointment.create({
       doctorId: parseInt(doctorId),
       patientName,
@@ -55,7 +50,6 @@ exports.bookAppointment = async (req, res) => {
       reason,
     });
 
-    // Update doctor's available slots
     const updatedSlots = doctor.availableSlots.filter(
       (slot) => slot !== appointmentTime
     );
@@ -88,7 +82,6 @@ exports.deleteAppointment = async (req, res) => {
       return res.status(404).json({ error: "Doctor not found" });
     }
 
-    // Add the slot back to available slots
     doctor.availableSlots.push(appointment.appointmentTime);
     await doctor.save();
 

@@ -14,6 +14,6 @@ router.get("/dashboard", authMiddleware(), getAppointments);
 router.post("/book", bookAppointment);
 
 // Route to delete an appointment
-router.delete("/:id", deleteAppointment);
+router.delete("/:id", authMiddleware(), deleteAppointment);
 
 module.exports = router;

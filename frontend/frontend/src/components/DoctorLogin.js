@@ -15,10 +15,9 @@ const DoctorLogin = () => {
         "http://localhost:8585/auth/login",
         credentials
       );
-      localStorage.setItem("token", data.token); // Store JWT token
+      localStorage.setItem("token", data.token);
       setError(null);
 
-      // Redirect to dashboard
       navigate("/dashboard");
     } catch (err) {
       console.error("Login error:", err.response?.data?.error || err.message);
