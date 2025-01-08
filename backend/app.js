@@ -1,19 +1,30 @@
 const express = require("express");
-require("dotenv").config();
 const cors = require("cors");
-const errorHandler = require("./middleware/errorHandler");
+const authRoutes = require("./routes/authRoutes");
+const appointmentRoutes = require("./routes/appointmentRoutes");
+const doctorRoutes = require("./routes/doctorRoutes");
+const Doctor = require("./models/Doctor");
+const sequelize = require("./config/database");
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-app.use("/auth", require("./routes/authRoutes"));
-app.use("/doctors", require("./routes/doctorRoutes"));
-app.use("/patients", require("./routes/patientRoutes"));
-app.use("/appointments", require("./routes/appointmentRoutes"));
+app.use("/auth", authRoutes);
+app.use("/doctors", doctorRoutes);
+app.use("/appointments", appointmentRoutes);
 
-app.use(errorHandler);
+sequelize
+  .sync()
+  .then(() => {
+    console.log("Database & tables created!");
+  })
+  .catch((err) => {
+    console.error("Error syncing database:", err);
+  });
 
-app.listen(3000);
-
-module.exports = app;
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});

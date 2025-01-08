@@ -1,34 +1,54 @@
 const Doctor = require("../models/Doctor");
 
+// Fetch all doctors
 exports.getAllDoctors = async (req, res) => {
   try {
-    const doctors = await Doctor.findAll();
-    res.status(200).json(doctors);
+    const doctors = await Doctor.findAll({
+      attributes: ["id", "name", "specialization", "availableSlots"],
+    });
+    res.status(200).json(doctors); // Return all doctors
   } catch (err) {
+    console.error("Error fetching doctors:", err.message);
     res.status(500).json({ error: "Failed to retrieve doctors" });
   }
 };
 
 exports.addDoctor = async (req, res) => {
   try {
-    const { name, specialization, availableSlots } = req.body;
+    const { name, specialization, availableSlots, email, password } = req.body;
 
     // Validate required fields
-    if (!name || !specialization) {
+    if (!name || !email || !password) {
       return res
         .status(400)
-        .json({ error: "Name and specialization are required" });
+        .json({ error: "Name, email, and password are required" });
     }
 
-    // Create a new doctor
+    // Create a new doctor with default availableSlots if not provided
     const doctor = await Doctor.create({
       name,
+      email,
+      password,
       specialization,
-      availableSlots,
+      availableSlots: availableSlots || [
+        "Monday 09:00",
+        "Monday 10:00",
+        "Monday 11:00",
+        "Monday 14:00",
+        "Monday 15:00",
+      ],
     });
-    res.status(201).json({ message: "Doctor added successfully", doctor });
+
+    // Remove password from response
+    const { password: _, ...doctorData } = doctor.toJSON();
+    res
+      .status(201)
+      .json({ message: "Doctor added successfully", doctor: doctorData });
   } catch (err) {
-    res.status(500).json({ error: "Failed to add doctor" });
+    console.error("Error adding doctor:", err);
+    res
+      .status(500)
+      .json({ error: "Failed to add doctor", details: err.message });
   }
 };
 

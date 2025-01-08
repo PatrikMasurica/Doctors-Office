@@ -1,15 +1,48 @@
-const { DataTypes } = require("sequelize");
+const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
 
-const Doctor = sequelize.define(
-  "Doctor",
+class Doctor extends Model {}
+
+Doctor.init(
   {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    name: { type: DataTypes.STRING, allowNull: false },
-    specialization: { type: DataTypes.STRING, allowNull: false },
-    availableSlots: { type: DataTypes.JSON, allowNull: true }, // e.g., ["2024-12-20 10:00", "2024-12-21 14:00"]
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    specialization: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    availableSlots: {
+      type: DataTypes.JSON,
+      allowNull: true,
+      defaultValue: [
+        "09:00 AM",
+        "10:00 AM",
+        "11:00 AM",
+        "02:00 PM",
+        "03:00 PM",
+        "04:00 PM",
+      ],
+      get() {
+        const value = this.getDataValue("availableSlots");
+        return value ? (Array.isArray(value) ? value : JSON.parse(value)) : [];
+      },
+    },
   },
-  { timestamps: true }
+  {
+    sequelize,
+    modelName: "Doctor",
+  }
 );
 
 module.exports = Doctor;

@@ -2,22 +2,18 @@ const express = require("express");
 const {
   bookAppointment,
   getAppointments,
-  updateAppointment,
+  deleteAppointment,
 } = require("../controllers/appointmentController");
-const authMiddleware = require("../middleware/authMiddleware");
+const authMiddleware = require("../middleware/authMiddleware"); // Import authMiddleware
 const router = express.Router();
 
-// Patients book appointments
-router.post("/", authMiddleware(["patient"]), bookAppointment);
+// Doctor's dashboard: view appointments (protected route)
+router.get("/dashboard", authMiddleware(), getAppointments);
 
-// Doctors and Patients view appointments; Admins see all
-router.get(
-  "/",
-  authMiddleware(["admin", "doctor", "patient"]),
-  getAppointments
-);
+// Public route to book an appointment
+router.post("/book", bookAppointment);
 
-// Doctors and Admins update appointment status
-router.put("/:id", authMiddleware(["doctor", "admin"]), updateAppointment);
+// Route to delete an appointment
+router.delete("/:id", deleteAppointment);
 
 module.exports = router;
